@@ -42,7 +42,7 @@ uci set https-dns-proxy.dns.listen_port="5053"
 
 # ==== Dnsmasq Config ====
 uci set dhcp.@dnsmasq[0].noresolv='1'
-uci delete dhcp.@dnsmasq[0].server
+uci del dhcp.@dnsmasq[0].server
 uci set dhcp.@dnsmasq[0].server='127.0.0.1#5053'
 uci set dhcp.@dnsmasq[0].dhcpv6='disabled'
 
