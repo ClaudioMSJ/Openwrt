@@ -61,6 +61,9 @@ uci set firewall.@rule[-1].dest_port='53'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].family='ipv4'
 
+# ==== Salvar Configs ====
+uci commit
+
 # ==== Script Adblock ====
 cat << 'EOF' > /root/adblock.sh
 #!/bin/sh
@@ -79,8 +82,5 @@ grep -qxF 'echo 3 > /proc/sys/vm/drop_caches' /etc/rc.local || sed -i '/^exit 0/
 (crontab -l 2>/dev/null; echo '0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches') | crontab -
 (crontab -l 2>/dev/null; echo '0 5 * * * sh /root/adblock.sh') | crontab -
 service cron restart
-
-# ==== Salvar Configs ====
-uci commit
 
 reboot
