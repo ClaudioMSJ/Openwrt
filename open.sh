@@ -10,10 +10,11 @@ uci set dhcp.lan.ndp='disabled'
 uci set firewall.@defaults[0].disable_ipv6='1'
 
 # ==== Desativar LEDs Azuis ====
-for led in $(ls /sys/class/leds | grep blue); do
-    echo none > /sys/class/leds/$led/trigger
-    echo 0 > /sys/class/leds/$led/brightness
-done
+uci add system led
+uci set system.@led[-1].name='Blue'
+uci set system.@led[-1].sysfs='blue:status'
+uci set system.@led[-1].trigger='none'
+uci set system.@led[-1].default='0'
 
 # ==== Horário e Log ====
 uci set system.@system[0].zonename='America/Sao Paulo'
