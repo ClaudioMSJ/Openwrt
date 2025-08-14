@@ -61,15 +61,12 @@ uci set firewall.@rule[-1].dest_port='53'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].family='ipv4'
 
-# ==== Salvar Configs ====
-uci commit
-
 # ==== Script Adblock ====
-cat << 'EOF' > /root/adblock.sh
+cat <<'EOF'>/root/adblock.sh
 #!/bin/sh
-URL="https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq_small.txt"
-until ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; do sleep 1; done
-wget -q "$URL" -O - | sed '/^[[:space:]]*#/d;/^[[:space:]]*$/d' > /etc/dnsmasq.conf
+URL=https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq_small.txt
+while ! ping -c1 -W1 8.8.8.8 >/dev/null; do sleep 1; done
+wget -qO- "$URL" | sed '/^\s*#/d;/^\s*$/d' >/etc/dnsmasq.conf
 /etc/init.d/dnsmasq restart
 EOF
 chmod +x /root/adblock.sh
@@ -82,5 +79,8 @@ grep -qxF 'echo 3 > /proc/sys/vm/drop_caches' /etc/rc.local || sed -i '/^exit 0/
 (crontab -l 2>/dev/null; echo '0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches') | crontab -
 (crontab -l 2>/dev/null; echo '0 5 * * * sh /root/adblock.sh') | crontab -
 service cron restart
+
+# ==== Salvar Configs ====
+uci commit
 
 reboot
