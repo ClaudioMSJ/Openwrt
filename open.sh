@@ -45,6 +45,12 @@ uci set https-dns-proxy.dns.listen_port="5053"
 uci set dhcp.@dnsmasq[0].noresolv='1'
 uci -q delete dhcp.@dnsmasq[0].server
 uci add_list dhcp.@dnsmasq[0].server='127.0.0.1#5053'
+uci set dhcp.@dnsmasq[0].cachesize='2000'
+uci set dhcp.@dnsmasq[0].min_cache_ttl='120'
+uci set dhcp.@dnsmasq[0].max_cache_ttl='86400'
+uci set dhcp.@dnsmasq[0].boguspriv='1'
+uci set dhcp.@dnsmasq[0].filterwin2k='1'
+uci set dhcp.@dnsmasq[0].localservice='1'
 uci set dhcp.@dnsmasq[0].dhcpv6='disabled'
 
 # ==== Bloqueio DNS Direto (somente IPv4) ====
