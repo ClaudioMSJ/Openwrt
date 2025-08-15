@@ -1,4 +1,2 @@
 <div _ngcontent-ng-c1826447281="" class="animated-opacity ng-tns-c1826447281-45"><pre _ngcontent-ng-c1826447281="" class="ng-tns-c1826447281-45"><code _ngcontent-ng-c1826447281="" role="text" data-test-id="code-content" class="code-container formatted ng-tns-c1826447281-45">wget -qO- https://raw.githubusercontent.com/ClaudioMSJ/Openwrt/refs/heads/main/open.sh | sh
 </code></pre><!----><!----><!----></div>
-
-
