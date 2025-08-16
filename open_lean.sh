@@ -58,12 +58,12 @@ uci set firewall.@rule[-1].family='ipv4'
 # ==== Instalar Adblock-Lean
 uclient-fetch https://raw.githubusercontent.com/lynxthecat/adblock-lean/master/abl-install.sh -O /tmp/abl-install.sh
 sh /tmp/abl-install.sh -v snapshot
+sed -i '/^blocklist_urls=/c blocklist_urls="https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/domainswild2_small.txt"' /etc/adblock-lean/config
 
 # ==== Script Adblock ====
 cat <<'EOF'>/root/adblock.sh
 #!/bin/sh
 while ! ping -c1 -W1 8.8.8.8 >/dev/null; do sleep 1; done
-sed -i '/^blocklist_urls=/c blocklist_urls="https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/domainswild2_small.txt"' /etc/adblock-lean/config
 service adblock-lean restart
 EOF
 chmod +x /root/adblock.sh
