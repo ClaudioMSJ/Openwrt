@@ -34,9 +34,6 @@ uci set network.wan.peerdns='0'
 uci set network.wan.dns='127.0.0.1'
 
 # ==== Dnsmasq Config ====
-uci delete dhcp.@dnsmasq[0].server='/mask.icloud.com/'
-uci delete dhcp.@dnsmasq[0].server='/mask-h2.icloud.com/'
-uci delete dhcp.@dnsmasq[0].server='/use-application-dns.net/'
 uci set dhcp.@dnsmasq[0].noresolv='1'
 uci set dhcp.@dnsmasq[0].cachesize='2000'
 uci set dhcp.@dnsmasq[0].min_cache_ttl='120'
