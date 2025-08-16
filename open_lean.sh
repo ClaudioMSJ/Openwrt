@@ -33,14 +33,6 @@ uci set firewall.@rule[1].enabled='0'
 uci set network.wan.peerdns='0'
 uci set network.wan.dns='127.0.0.1'
 
-# Limpa config antiga do https-dns-proxy
-while uci -q delete https-dns-proxy.@https-dns-proxy[0]; do :; done
-uci set https-dns-proxy.dns="https-dns-proxy"
-uci set https-dns-proxy.dns.bootstrap_dns="1.1.1.1,1.0.0.1"
-uci set https-dns-proxy.dns.resolver_url="https://cloudflare-dns.com/dns-query"
-uci set https-dns-proxy.dns.listen_addr="127.0.0.1"
-uci set https-dns-proxy.dns.listen_port="5053"
-
 # ==== Dnsmasq Config ====
 uci set dhcp.@dnsmasq[0].noresolv='1'
 uci -q delete dhcp.@dnsmasq[0].server
