@@ -66,7 +66,7 @@ uci set firewall.@rule[-1].family='ipv4'
 # ==== Script Adblock ====
 cat <<'EOF'>/root/adblock.sh
 #!/bin/sh
-URL=https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq_small.txt
+URL=https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq2_small.txt
 while ! ping -c1 -W1 8.8.8.8 >/dev/null; do sleep 1; done
 wget -qO- "$URL" | sed '/^\s*#/d;/^\s*$/d' >/etc/dnsmasq.conf
 /etc/init.d/dnsmasq restart
