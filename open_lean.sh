@@ -62,7 +62,7 @@ sed -i '/^blocklist_urls=/c blocklist_urls="https://raw.githubusercontent.com/sj
 cat <<'EOF'>/root/adblock.sh
 #!/bin/sh
 while ! ping -c1 -W1 8.8.8.8 >/dev/null; do sleep 1; done
-service adblock-lean restart
+service adblock-lean start
 EOF
 chmod +x /root/adblock.sh
 
