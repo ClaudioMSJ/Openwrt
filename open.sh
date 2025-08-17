@@ -41,6 +41,7 @@ uci set dhcp.@dnsmasq[0].max_cache_ttl='86400'
 uci set dhcp.@dnsmasq[0].boguspriv='1'
 uci set dhcp.@dnsmasq[0].filterwin2k='1'
 uci set dhcp.@dnsmasq[0].localservice='1'
+uci set dhcp.@dnsmasq[0].allservers='1'
 uci set dhcp.@dnsmasq[0].dhcpv6='disabled'
 
 # ==== Bloqueio DNS Direto (somente IPv4) ====
