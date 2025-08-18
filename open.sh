@@ -73,8 +73,10 @@ exit 0
 EOF
 
 # ==== Cron Jobs ====
-echo "0 5 * * * sh /root/adblock.sh" >> /etc/crontabs/root
-echo "0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches" >> /etc/crontabs/root
+cat << "EOF" >> /etc/crontabs/root
+0 5 * * * sh /root/adblock.sh
+0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches
+EOF
 service cron restart
 
 # ==== Salvar Configs ====
