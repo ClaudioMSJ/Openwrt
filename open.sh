@@ -66,8 +66,11 @@ EOF
 chmod +x /root/adblock.sh
 
 # ==== rc.local sem sobrescrever completamente ====
-grep -qxF 'sh /root/adblock.sh' /etc/rc.local || sed -i '/^exit 0/i sleep 30 && sh /root/adblock.sh' /etc/rc.local
-grep -qxF 'echo 3 > /proc/sys/vm/drop_caches' /etc/rc.local || sed -i '/^exit 0/i sleep 60 && sync && echo 3 > /proc/sys/vm/drop_caches' /etc/rc.local
+cat << 'EOF' > /etc/rc.local
+sleep 30 && sh /root/adblock.sh &
+sleep 60 && sync && echo 3 > /proc/sys/vm/drop_caches &
+exit 0
+EOF
 
 # ==== Cron Jobs ====
 echo "0 5 * * * sh /root/adblock.sh" >> /etc/crontabs/root
