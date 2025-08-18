@@ -70,8 +70,8 @@ grep -qxF 'sh /root/adblock.sh' /etc/rc.local || sed -i '/^exit 0/i sleep 30 && 
 grep -qxF 'echo 3 > /proc/sys/vm/drop_caches' /etc/rc.local || sed -i '/^exit 0/i sleep 60 && sync && echo 3 > /proc/sys/vm/drop_caches' /etc/rc.local
 
 # ==== Cron Jobs ====
-(crontab -l 2>/dev/null; echo '0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches') | crontab -
 (crontab -l 2>/dev/null; echo '0 5 * * * sh /root/adblock.sh') | crontab -
+(crontab -l 2>/dev/null; echo '0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches') | crontab -
 service cron restart
 
 # ==== Salvar Configs ====
