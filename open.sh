@@ -57,24 +57,11 @@ uci set firewall.@rule[-1].family='ipv4'
 # ==== Script Adblock ====
 cat <<'EOF'>/root/adblock.sh
 #!/bin/sh
-URL="https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq2_small.txt"
-TMPFILE="/tmp/dnsmasq.blocklist"
-
-# Espera a rede
-while ! ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; do
-    sleep 1
-done
-
-# Baixa a lista para um arquivo temporário
-wget -qO- "$URL" | sed '/^\s*#/d;/^\s*$/d' > "$TMPFILE"
-
-# Verifica se o arquivo não está vazio
-if [ -s "$TMPFILE" ]; then
-    mv "$TMPFILE" /etc/dnsmasq.conf
-    /etc/init.d/dnsmasq restart
-else
-    rm -f "$TMPFILE"
-fi
+U=https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq2_small.txt
+T=/tmp/dnsmasq.list
+while ! ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; do sleep 1; done
+wget -qO- $U | sed '/^\s*#/d;/^\s*$/d' > $T
+[ -s $T ] && mv $T /etc/dnsmasq.conf && /etc/init.d/dnsmasq restart || rm -f $T
 EOF
 chmod +x /root/adblock.sh
 
