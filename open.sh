@@ -1,85 +1,100 @@
 #!/bin/sh
 
-# ==== Desativar IPv6 ====
-uci delete network.wan6
-uci set network.lan.ipv6='0'
-uci set network.wan.ipv6='0'
-uci set dhcp.lan.dhcpv6='disabled'
-uci set dhcp.lan.ra='disabled'
-uci set dhcp.lan.ndp='disabled'
-uci set firewall.@defaults[0].disable_ipv6='1'
+#================================================================
+# CONFIGURAÇÃO OTIMIZADA DO SISTEMA E REDE VIA UCI
+#================================================================
+uci batch <<EOF
+# ---- Desativar IPv6 ----
+delete network.wan6
+delete network.globals.ula_prefix
+set network.lan.ipv6='0'
+set network.wan.ipv6='0'
+set dhcp.lan.dhcpv6='disabled'
+set dhcp.lan.ra='disabled'
+set dhcp.lan.ndp='disabled'
+set firewall.@defaults[0].disable_ipv6='1'
 
-# ==== Desativar LEDs Azuis ====
-uci add system led
-uci set system.@led[-1].name='Blue'
-uci set system.@led[-1].sysfs='blue:status'
-uci set system.@led[-1].trigger='none'
-uci set system.@led[-1].default='0'
+# ---- Desativar LEDs Azuis ----
+add system led
+set system.@led[-1].name='Blue'
+set system.@led[-1].sysfs='blue:status'
+set system.@led[-1].trigger='none'
+set system.@led[-1].default='0'
 
-# ==== Horário e Log ====
-uci set system.@system[0].zonename='America/Sao Paulo'
-uci set system.@system[0].timezone='<-03>3'
-uci set system.@system[0].log_size='16'
-uci set system.@system[0].log_rotated='3'
+# ---- Horário e Configurações de Log ----
+set system.@system[0].zonename='America/Sao_Paulo'
+set system.@system[0].timezone='<-03>3'
+set system.@system[0].log_size='16'
+set system.@system[0].log_rotated='3'
 
-# ==== Flow Offloading (MT7981 suporta) ====
-uci set firewall.@defaults[0].flow_offloading='1'
-uci set firewall.@defaults[0].flow_offloading_hw='1'
+# ---- Ativar Flow Offloading ----
+set firewall.@defaults[0].flow_offloading='1'
+set firewall.@defaults[0].flow_offloading_hw='1'
 
-# ==== Desativar Allow-Ping ====
-uci set firewall.@rule[1].enabled='0'
+# ---- Desativar Regra Allow-Ping ----
+set firewall.@rule[1].enabled='0'
 
-# ==== Bloquear DNS Provedor ====
-uci set network.wan.peerdns='0'
-uci set network.wan.dns='127.0.0.1'
+# ---- Forçar DNS Local (Bloquear DNS do Provedor) ----
+set network.wan.peerdns='0'
+set network.wan.dns='127.0.0.1'
+delete dhcp.@dnsmasq[0].server
+add_list dhcp.@dnsmasq[0].server='127.0.0.1#5053'
+add_list dhcp.@dnsmasq[0].server='127.0.0.1#5054'
 
-# ==== Dnsmasq Config ====
-uci set dhcp.@dnsmasq[0].noresolv='1'
-uci set dhcp.@dnsmasq[0].cachesize='2000'
-uci set dhcp.@dnsmasq[0].min_cache_ttl='120'
-uci set dhcp.@dnsmasq[0].max_cache_ttl='86400'
-uci set dhcp.@dnsmasq[0].boguspriv='1'
-uci set dhcp.@dnsmasq[0].filterwin2k='1'
-uci set dhcp.@dnsmasq[0].localservice='1'
-uci set dhcp.@dnsmasq[0].allservers='1'
-uci set dhcp.@dnsmasq[0].dhcpv6='disabled'
+# ---- Otimizar Dnsmasq ----
+set dhcp.@dnsmasq[0].noresolv='1'
+set dhcp.@dnsmasq[0].min_cache_ttl='3600'
+set dhcp.@dnsmasq[0].max_cache_ttl='86400'
+set dhcp.@dnsmasq[0].boguspriv='1'
+set dhcp.@dnsmasq[0].localservice='1'
+set dhcp.@dnsmasq[0].confdir='/etc/dnsmasq.d'
 
-# ==== Bloqueio DNS Direto (somente IPv4) ====
-uci add firewall rule
-uci set firewall.@rule[-1].name='Block-DNS-Direct'
-uci set firewall.@rule[-1].src='lan'
-uci set firewall.@rule[-1].dest='wan'
-uci set firewall.@rule[-1].proto='tcp udp'
-uci set firewall.@rule[-1].dest_port='53'
-uci set firewall.@rule[-1].target='REJECT'
-uci set firewall.@rule[-1].family='ipv4'
-
-# ==== Script Adblock ====
-cat <<'EOF'>/root/adblock.sh
-#!/bin/sh
-U=https://raw.githubusercontent.com/sjhgvr/oisd/refs/heads/main/dnsmasq2_small.txt
-T=/tmp/dnsmasq.list
-while ! ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; do sleep 1; done
-wget -qO- $U | sed '/^\s*#/d;/^\s*$/d' > $T
-[ -s $T ] && mv $T /etc/dnsmasq.conf && /etc/init.d/dnsmasq restart || rm -f $T
+# ---- Bloquear Requisições DNS Diretas na WAN (IPv4) ----
+add firewall rule
+set firewall.@rule[-1].name='Block-DNS-Direct'
+set firewall.@rule[-1].src='lan'
+set firewall.@rule[-1].dest='wan'
+set firewall.@rule[-1].proto='tcp udp'
+set firewall.@rule[-1].dest_port='53'
+set firewall.@rule[-1].target='REJECT'
+set firewall.@rule[-1].family='ipv4'
 EOF
+
+#================================================================
+# CRIAR DIRETÓRIO PARA CONFIGS DO DNSMASQ
+#================================================================
+mkdir -p /etc/dnsmasq.d
+
+#================================================================
+# SCRIPT DE ADBLOCK
+#================================================================
+cat <<'EOF' > /root/adblock.sh
+#!/bin/sh
+URL="https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/dnsmasq/light.txt"
+CONF="/etc/dnsmasq.d/blacklist.conf"
+TMP="/tmp/adblock_list.txt"
+while ! ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; do sleep 1; done
+wget -qO- "$URL" | sed '/^\s*#/d;/^\s*$/d' > "$TMP" && [ -s "$TMP" ] && mv "$TMP" "$CONF" && /etc/init.d/dnsmasq restart
+EOF
+
+# Tornar o script de adblock executável
 chmod +x /root/adblock.sh
 
-# ==== rc.local sem sobrescrever completamente ====
-cat << 'EOF' > /etc/rc.local
-sleep 30 && sh /root/adblock.sh &
-sleep 60 && sync && echo 3 > /proc/sys/vm/drop_caches &
-exit 0
-EOF
+#================================================================
+# AGENDAMENTO DO SCRIPT DE ADBLOCK
+#================================================================
+# Executar na inicialização do roteador (após 30s)
+sed -i -e "/^exit 0/i sleep 30 && sh /root/adblock.sh &\n" /etc/rc.local
 
-# ==== Cron Jobs ====
-cat << "EOF" >> /etc/crontabs/root
-0 5 * * * sh /root/adblock.sh
-0 6 * * * sync && echo 3 > /proc/sys/vm/drop_caches
-EOF
-service cron restart
+# Adicionar tarefa ao Cron para executar diariamente às 05:00
+echo "0 5 * * * sh /root/adblock.sh" >> /etc/crontabs/root
+/etc/init.d/cron enable
+/etc/init.d/cron start
 
-# ==== Salvar Configs ====
+#================================================================
+# SALVAR E REINICIAR
+#================================================================
 uci commit
-
+echo "Configurações aplicadas com sucesso! O roteador será reiniciado."
+sleep 2
 reboot
